@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackgris/backend-notification-APIs/internal/loggin"
+	"github.com/jackgris/backend-notification-APIs/internal/lognotifier"
 	"github.com/jackgris/backend-notification-APIs/internal/notification"
 	"github.com/jackgris/backend-notification-APIs/internal/store/userdb"
 	"github.com/jackgris/backend-notification-APIs/pkg/logs"
@@ -34,9 +34,9 @@ func run(ctx context.Context, log *logs.Logger) error {
 	db := connectDB(ctx, log)
 	defer db.Close(ctx)
 
-	logs := loggin.NewLogs(db)
+	lognotifier := lognotifier.NewLogs(db)
 	store := userdb.NewStore(db)
-	n := notification.NewNotification(store, logs)
+	n := notification.NewNotification(store, lognotifier, log)
 
 	mux := http.NewServeMux()
 

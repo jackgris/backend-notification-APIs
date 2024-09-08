@@ -6,8 +6,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jackgris/backend-notification-APIs/internal/loggin"
+	"github.com/jackgris/backend-notification-APIs/internal/lognotifier"
+	"github.com/jackgris/backend-notification-APIs/internal/services/email"
+	"github.com/jackgris/backend-notification-APIs/internal/services/pushnotification"
+	"github.com/jackgris/backend-notification-APIs/internal/services/sms"
 	"github.com/jackgris/backend-notification-APIs/internal/usermodel"
+	"github.com/jackgris/backend-notification-APIs/pkg/logs"
 )
 
 type Store interface {
@@ -15,14 +19,16 @@ type Store interface {
 }
 
 type Notification struct {
-	db   Store
-	logs *loggin.Logs
+	db         Store
+	notifyLogs *lognotifier.LogNotifier
+	log        *logs.Logger
 }
 
-func NewNotification(db Store, logs *loggin.Logs) *Notification {
+func NewNotification(db Store, notifyLogs *lognotifier.LogNotifier, log *logs.Logger) *Notification {
 	return &Notification{
-		db:   db,
-		logs: logs,
+		db:         db,
+		notifyLogs: notifyLogs,
+		log:        log,
 	}
 }
 
@@ -45,10 +51,18 @@ func (n *Notification) NotifyUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
-	// Log notifications
+	// Send notifications and save logs
 	for _, user := range users {
 		for _, channel := range user.NotificationChannels {
-			n.logs.Notification(ctx, user, req.Category, req.Message, channel)
+			switch {
+			case channel == "SMS":
+				sms.Send(ctx, user.ID, req.Message, n.log)
+			case channel == "Email":
+				email.Send(ctx, user.ID, req.Message, n.log)
+			case channel == "PushNotification":
+				pushnotification.Send(ctx, user.ID, req.Message, n.log)
+			}
+			n.notifyLogs.Notification(ctx, user, req.Category, req.Message, channel)
 		}
 	}
 

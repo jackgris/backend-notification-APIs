@@ -1,4 +1,4 @@
-package loggin
+package lognotifier
 
 import "time"
 
