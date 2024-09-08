@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"runtime"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackgris/backend-notification-APIs/internal/loggin"
@@ -37,11 +39,21 @@ func run(ctx context.Context, log *logs.Logger) error {
 
 	mux.HandleFunc("POST /notify", middleware.LogResponse(n.NotifyUsers, log))
 
-	log.Info(ctx, "Server started at :8080")
-	err := http.ListenAndServe(":8080", mux)
+	portEnv := os.Getenv("PORT")
+
+	port, err := strconv.Atoi(portEnv)
+	if err != nil {
+		log.Error(ctx, "Environment variable PORT converting to integer")
+		os.Exit(1)
+	}
+
+	log.Info(ctx, "startup", "GOMAXPROCS", runtime.GOMAXPROCS(0), "Server started at port", port)
+	err = http.ListenAndServe(":"+portEnv, mux)
 	if err != nil {
 		return err
 	}
+
+	log.Info(ctx, "Server shutdown OK")
 
 	return nil
 }
