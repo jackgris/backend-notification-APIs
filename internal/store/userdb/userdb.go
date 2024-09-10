@@ -2,17 +2,18 @@ package userdb
 
 import (
 	"context"
+	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackgris/backend-notification-APIs/internal/store"
 	"github.com/jackgris/backend-notification-APIs/internal/usermodel"
 )
 
 type Store struct {
-	db *pgx.Conn
+	db store.PgxIface
 }
 
-func NewStore(db *pgx.Conn) *Store {
+func NewStore(db store.PgxIface) *Store {
 	return &Store{
 		db: db,
 	}
@@ -39,7 +40,7 @@ func (s *Store) GetUsers(category string) ([]usermodel.User, error) {
 		var user usermodel.User
 		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.SubscribedCategories, &user.NotificationChannels)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error row scan: %s", err)
 		}
 		users = append(users, user)
 	}
