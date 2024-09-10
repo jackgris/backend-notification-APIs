@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jackgris/backend-notification-APIs/internal/domain/usermodel"
 	"github.com/jackgris/backend-notification-APIs/internal/store"
-	"github.com/jackgris/backend-notification-APIs/internal/usermodel"
 )
 
 type Store struct {

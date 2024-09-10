@@ -5,15 +5,15 @@ import (
 	"log"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackgris/backend-notification-APIs/internal/usermodel"
+	"github.com/jackgris/backend-notification-APIs/internal/domain/usermodel"
+	"github.com/jackgris/backend-notification-APIs/internal/store"
 )
 
 type LogNotifier struct {
-	db *pgx.Conn
+	db store.PgxIface
 }
 
-func NewLogs(db *pgx.Conn) *LogNotifier {
+func NewLogs(db store.PgxIface) *LogNotifier {
 	return &LogNotifier{
 		db: db,
 	}

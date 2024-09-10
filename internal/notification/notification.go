@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jackgris/backend-notification-APIs/internal/domain/usermodel"
 	"github.com/jackgris/backend-notification-APIs/internal/lognotifier"
 	"github.com/jackgris/backend-notification-APIs/internal/services/email"
 	"github.com/jackgris/backend-notification-APIs/internal/services/pushnotification"
 	"github.com/jackgris/backend-notification-APIs/internal/services/sms"
-	"github.com/jackgris/backend-notification-APIs/internal/usermodel"
 	"github.com/jackgris/backend-notification-APIs/pkg/logs"
 )
 
@@ -46,7 +46,7 @@ func (n *Notification) NotifyUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	users, err := n.db.GetUsers(req.Category)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
